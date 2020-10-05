@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="person")
-public class Person {
+@Table
+public class Contact {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,21 +29,21 @@ public class Person {
 
     private String description;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Label> labels;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Email> emails;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Address> addresses;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<PhoneNumber> phoneNumbers;
 
-    public Person() {}
+    public Contact() {}
 
-    public Person(@NotNull String firstName, @NotNull String lastName, Date dob, String company, String vipStatus, String description, List<Label> labels, List<Email> emails, List<Address> addresses, List<PhoneNumber> phoneNumbers) {
+    public Contact(@NotNull String firstName, @NotNull String lastName, Date dob, String company, String vipStatus, String description, List<Label> labels, List<Email> emails, List<Address> addresses, List<PhoneNumber> phoneNumbers) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.dob = dob;

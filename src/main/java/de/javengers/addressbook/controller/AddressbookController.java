@@ -1,6 +1,6 @@
 package de.javengers.addressbook.controller;
 
-import de.javengers.addressbook.entity.Person;
+import de.javengers.addressbook.entity.Contact;
 import de.javengers.addressbook.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -11,9 +11,8 @@ import java.util.List;
 @RestController
 public class AddressbookController {
 
-
     @Autowired
-    PersonRepository personRepository;
+    ContactRepository contactRepository;
 
     @Autowired
     PhoneNumberRepository phoneNumberRepository;
@@ -28,32 +27,31 @@ public class AddressbookController {
     LabelRepository labelRepository;
 
     @RequestMapping(
-            path = "/persons",
+            path = "/contacts",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public List<Person> getAllPerson(){
+    public List<Contact> getAllContacts(){
 
-        List<Person> allPerson = personRepository.findAll();
+        List<Contact> allContacts = contactRepository.findAll();
 
-        return allPerson;
+        return allContacts;
     }
 
-    @PostMapping("person")
-    public Integer savePerson(@RequestBody Person person){
+    @PostMapping("contact")
+    public Contact saveContact(@RequestBody Contact contact){
         try{
-            Person p = personRepository.save(person);
-            return p.getId();
+            return contactRepository.save(contact);
         }catch(Exception e){
             System.out.println(e);
         }
         return null;
     }
 
-    @PostMapping("persons")
-    public List<Person> createPersons(@RequestBody List<Person> persons) {
+    @PostMapping("contacts")
+    public List<Contact> createContacts(@RequestBody List<Contact> contacts) {
         try{
-            return personRepository.saveAll(persons);
+            return contactRepository.saveAll(contacts);
         }catch(Exception e){
             System.out.println(e);
         }
