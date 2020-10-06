@@ -4,8 +4,6 @@ public class User {
 
     private Long id;
 
-
-
     public void setId(Long id) {
         this.id = id;
     }

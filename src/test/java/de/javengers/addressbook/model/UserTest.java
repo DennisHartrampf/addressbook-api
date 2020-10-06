@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UserTest {
 
     @Test
-    void testGetterSetter(){
+    void testGetterSetter() {
         User user = new User();
         user.setId(1L);
         Long id = user.getId();
