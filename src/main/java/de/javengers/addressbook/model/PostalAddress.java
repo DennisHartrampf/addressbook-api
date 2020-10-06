@@ -8,6 +8,20 @@ public class PostalAddress {
     private String city;
     private String country;
 
+    public PostalAddress() {
+
+    }
+
+    public PostalAddress(Long id, String street, String houseNumber, String zipCode, String city,
+                         String country) {
+        this.id = id;
+        this.street = street;
+        this.houseNumber = houseNumber;
+        this.zipCode = zipCode;
+        this.city = city;
+        this.country = country;
+    }
+
     public void setStreet(String street) {
         this.street = street;
     }
