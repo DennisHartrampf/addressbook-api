@@ -12,6 +12,7 @@ public class AddressBookController {
 
     @PostMapping(path = "/api/addressbook")
     public Object createAddressBook(@RequestHeader String userId) {
-        return ResponseEntity.status(400).body(new ErrorMessage("User userId is not found."));
+        return ResponseEntity.status(400)
+                .body(new ErrorMessage(String.format("User with userId=%s is not found.", userId)));
     }
 }

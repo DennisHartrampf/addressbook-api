@@ -35,7 +35,7 @@ class AddressBookControllerTest {
                 post("/api/addressbook/")
                         .header("userId", "123"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("{\"message\":\"User userId is not found.\"}")));
+                .andExpect(content().string(containsString("{\"message\":\"User with userId=123 is not found.\"}")));
     }
 
 }
