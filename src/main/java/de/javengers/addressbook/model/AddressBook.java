@@ -3,24 +3,25 @@ package de.javengers.addressbook.model;
 import java.util.List;
 
 public class AddressBook {
+
     private Long id;
-    private Long userId;
+    private User user;
     private List<AddressBookEntry> entries;
 
     public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public User getUser() {
+        return user;
     }
 
-    public long getUserId() {
-        return userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<AddressBookEntry> getEntries() {

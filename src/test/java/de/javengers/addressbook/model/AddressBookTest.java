@@ -14,14 +14,15 @@ class AddressBookTest {
         AddressBook addressBook = new AddressBook();
 
         addressBook.setId(1L);
-        addressBook.setUserId(3L);
+        User user = new User();
+        addressBook.setUser(user);
         List<AddressBookEntry> addressBookEntries = new ArrayList<>();
         addressBookEntries.add(new AddressBookEntry());
         addressBookEntries.add(new AddressBookEntry());
         addressBook.setEntries(addressBookEntries);
 
         assertThat(addressBook.getId()).isEqualTo(1);
-        assertThat(addressBook.getUserId()).isEqualTo(3);
+        assertThat(addressBook.getUser()).isEqualTo(user);
         assertThat(addressBook.getEntries()).isEqualTo(addressBookEntries);
     }
 
