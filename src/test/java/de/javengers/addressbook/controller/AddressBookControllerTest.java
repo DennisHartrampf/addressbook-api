@@ -1,6 +1,7 @@
 package de.javengers.addressbook.controller;
 
 import de.javengers.addressbook.exception.NoSuchUserException;
+import de.javengers.addressbook.model.AddressBookEntry;
 import de.javengers.addressbook.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +12,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,6 +49,16 @@ class AddressBookControllerTest {
         mockMvc.perform(
                 post("/api/addressbook/")
                         .header("userId", "123"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("{\"message\":\"User with userId=123 is not found.\"}")));
+    }
+
+    @Test
+    public void testCreateAddressBook() throws Exception {
+        mockMvc.perform(
+                post("/api/addressbook/")
+                        .header("userId", "123")
+                        .content(String.valueOf(List.of(new AddressBookEntry()))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("{\"message\":\"User with userId=123 is not found.\"}")));
     }
