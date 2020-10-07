@@ -1,16 +1,24 @@
 package de.javengers.addressbook.model;
 
+import javax.persistence.*;
 import java.util.List;
 
+@Entity
 public class AddressBookEntry {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String salutation;
     private String firstName;
     private String lastName;
     private String company;
+    @ElementCollection
     private List<String> phoneNumbers;
+    @ElementCollection
     private List<String> emailAddresses;
+    @OneToMany
     private List<PostalAddress> postalAddress;
+    @OneToMany
     private List<Category> categories;
 
     private boolean vip;

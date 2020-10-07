@@ -31,21 +31,24 @@ class AddressBookServiceTest {
     }
 
     @Test
-    void testCreateAddressBook() {
-        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository);
+    void testCreateAddressBook() throws Exception {
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
 
         AddressBookEntry entry = new AddressBookEntry();
         User user = new User();
         user.setId(123L);
-
         AddressBook newAddressBook = new AddressBook();
         newAddressBook.setUser(user);
         newAddressBook.setId(12L);
 
         when(addressBookRepository.findByUser(user.getId())).thenReturn(List.of());
-        assertThat(service.createAddressBookEntry(user, entry)).isEqualTo(1);
+        when(addressBookRepository.save(any())).thenReturn(newAddressBook);
+        when(addressBookEntryRepository.save(any())).thenReturn(entry);
+
+        long idOfNewEntry = service.createAddressBookEntry(user, entry);
+
+        assertThat(idOfNewEntry).isEqualTo(0);
         verify(addressBookRepository).findByUser(user.getId());
-        verify(addressBookRepository.save(newAddressBook));
         verify(categoryRepository).saveAll(entry.getCategories());
         verify(postalAddressRepository).saveAll(entry.getPostalAddress());
         verify(addressBookEntryRepository).save(entry);

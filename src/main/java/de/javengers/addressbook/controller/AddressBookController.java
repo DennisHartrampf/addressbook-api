@@ -6,10 +6,12 @@ import de.javengers.addressbook.model.ErrorMessage;
 import de.javengers.addressbook.model.User;
 import de.javengers.addressbook.service.AddressBookService;
 import de.javengers.addressbook.service.UserService;
-
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 
@@ -32,11 +34,14 @@ public class AddressBookController {
             return tryCreateAddressBookEntry(userId, entry);
         } catch (NoSuchUserException ex) {
             return noSuchUserResponse(userId);
+        } catch (Exception e) {
+            //TODO: handle
         }
+        return ResponseEntity.status(400).build();
     }
 
     private ResponseEntity<Void> tryCreateAddressBookEntry(Long userId, AddressBookEntry entry)
-    throws NoSuchUserException {
+            throws Exception {
         final User user = userService.getUser(userId);
         final Long addressBookEntryId = addressBookService.createAddressBookEntry(user, entry);
         return ResponseEntity.created(URI.create(String.format("/api/addressbook/%d",

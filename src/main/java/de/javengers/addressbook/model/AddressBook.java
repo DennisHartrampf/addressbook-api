@@ -1,11 +1,17 @@
 package de.javengers.addressbook.model;
 
+import javax.persistence.*;
 import java.util.List;
 
+@Entity
 public class AddressBook {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @OneToOne
     private User user;
+    @OneToMany
     private List<AddressBookEntry> entries;
 
     public Long getId() {
