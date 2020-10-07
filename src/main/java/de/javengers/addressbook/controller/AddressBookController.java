@@ -7,10 +7,7 @@ import de.javengers.addressbook.model.User;
 import de.javengers.addressbook.service.AddressBookService;
 import de.javengers.addressbook.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,7 +22,7 @@ public class AddressBookController {
         this.addressBookService = addressBookService;
     }
 
-    @PostMapping(path = "/api/addressbook")
+    @PostMapping(path = "/api/addressbook", produces = "application/json")
     public Object createAddressBook(@RequestHeader String userId, @RequestBody List<AddressBookEntry> entries) {
         User user;
         try {
@@ -36,5 +33,10 @@ public class AddressBookController {
         }
 
         return addressBookService.createAddressBookEntry(user, entries);
+    }
+
+    @GetMapping(path = "/api/getjson")
+    public Object getJson() {
+        return List.of(new AddressBookEntry());
     }
 }
