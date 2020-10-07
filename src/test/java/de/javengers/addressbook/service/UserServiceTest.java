@@ -36,8 +36,6 @@ class UserServiceTest {
     @Test
     void testGetUser_NoSuchUser() {
         when(userRepositoryMock.get(anyString())).thenThrow(new NoSuchElementException());
-        assertThatThrownBy(() -> {
-            userService.getUser("some user");
-        }).isInstanceOf(NoSuchUserException.class);
+        assertThatThrownBy(() -> userService.getUser("some user")).isInstanceOf(NoSuchUserException.class);
     }
 }
