@@ -7,10 +7,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,14 +29,14 @@ class UserServiceTest {
     @Test
     void testGetUser() throws NoSuchUserException {
         User expectedUser = new User();
-        when(userRepositoryMock.get(anyString())).thenReturn(expectedUser);
-        User user = userService.getUser("anyUserId");
+        when(userRepositoryMock.findById(anyLong())).thenReturn(Optional.of(expectedUser));
+        User user = userService.getUser(12L);
         assertThat(user).isEqualTo(expectedUser);
     }
 
     @Test
     void testGetUser_NoSuchUser() {
-        when(userRepositoryMock.get(anyString())).thenThrow(new NoSuchElementException());
-        assertThatThrownBy(() -> userService.getUser("some user")).isInstanceOf(NoSuchUserException.class);
+        when(userRepositoryMock.findById(anyLong())).thenThrow(new NoSuchElementException());
+        assertThatThrownBy(() -> userService.getUser(12L)).isInstanceOf(NoSuchUserException.class);
     }
 }

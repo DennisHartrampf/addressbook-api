@@ -3,12 +3,12 @@ package de.javengers.addressbook.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
 import de.javengers.addressbook.exception.NoSuchUserException;
-import de.javengers.addressbook.model.*;
+import de.javengers.addressbook.model.AddressBookEntry;
+import de.javengers.addressbook.model.PostalAddress;
+import de.javengers.addressbook.model.User;
 import de.javengers.addressbook.service.AddressBookService;
 import de.javengers.addressbook.service.UserService;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyString;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -56,7 +56,7 @@ class AddressBookControllerIntegrationTest {
     @Test
     void testCreateAddressBook_UserDoesNotExist() throws Exception {
         doThrow(new NoSuchUserException("User with userId=123 is not found.")).when(userService)
-                                                                              .getUser(anyString());
+                                                                              .getUser(anyLong());
         mockMvc.perform(post("/api/addressbook/").contentType(MediaType.APPLICATION_JSON)
                                                  .header("userId", "123")
                                                  .content(getEntryJsonString()))
@@ -69,7 +69,7 @@ class AddressBookControllerIntegrationTest {
     void testCreateAddressBook_success() throws Exception {
         final User user = new User();
         user.setId(1L);
-        when(userService.getUser(anyString())).thenReturn(user);
+        when(userService.getUser(anyLong())).thenReturn(user);
         when(addressBookService.createAddressBookEntry(any(), any())).thenReturn(2L);
         mockMvc.perform(post("/api/addressbook/").header("userId", "1")
                                                  .contentType(MediaType.APPLICATION_JSON)
