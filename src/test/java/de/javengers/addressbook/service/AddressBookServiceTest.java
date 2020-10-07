@@ -13,7 +13,7 @@ class AddressBookServiceTest {
     @Test
     public void testCreateAddressBook(){
         AddressBookService service = new AddressBookService();
-        assertThat(service.createAddressBookEntry(new User(), List.of(new AddressBookEntry()))).isEqualTo(1);
+        assertThat(service.createAddressBookEntry(new User(), new AddressBookEntry())).isEqualTo(1);
     }
 
 }

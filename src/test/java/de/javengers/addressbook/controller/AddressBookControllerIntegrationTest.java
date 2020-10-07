@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = UserServiceMock.class)
 @ComponentScan("de.javengers.addressbook")
 @SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true")
-class AddressBookControllerTest {
+class AddressBookControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -85,8 +85,7 @@ class AddressBookControllerTest {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         AddressBookEntry addressBookEntry = new AddressBookEntry();
         addressBookEntry.setPostalAddress(List.of(postalAddress1));
-        List<AddressBookEntry> addressBookEntries = List.of(addressBookEntry);
-        return objectMapper.writeValueAsString(addressBookEntries);
+        return objectMapper.writeValueAsString(addressBookEntry);
     }
 
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Service
 public class AddressBookService {
-    public Long createAddressBookEntry(User user, List<AddressBookEntry> entries) {
+    public Long createAddressBookEntry(User user, AddressBookEntry entry) {
         return 1L;
     }
 }

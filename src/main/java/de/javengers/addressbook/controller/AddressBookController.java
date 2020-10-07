@@ -23,7 +23,7 @@ public class AddressBookController {
     }
 
     @PostMapping(path = "/api/addressbook", produces = "application/json")
-    public Object createAddressBook(@RequestHeader String userId, @RequestBody List<AddressBookEntry> entries) {
+    public Object createAddressBook(@RequestHeader String userId, @RequestBody AddressBookEntry entry) {
         User user;
         try {
             user = userService.getUser(userId);
@@ -32,7 +32,7 @@ public class AddressBookController {
                     .body(new ErrorMessage(String.format("User with userId=%s is not found.", userId)));
         }
 
-        return addressBookService.createAddressBookEntry(user, entries);
+        return addressBookService.createAddressBookEntry(user, entry);
     }
 
     @GetMapping(path = "/api/getjson")
