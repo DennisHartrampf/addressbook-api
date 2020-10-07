@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface AddressBookRepository extends JpaRepository<AddressBook, Long> {
 
-    @Query("SELECT ab FROM AddressBook ab WHERE ab.userId like %?1")
+    @Query("SELECT ab FROM AddressBook ab WHERE ab.user.id = ?1")
     List<AddressBook> findByUser(Long userId);
 }
