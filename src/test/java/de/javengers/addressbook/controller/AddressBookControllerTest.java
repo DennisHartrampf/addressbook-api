@@ -1,5 +1,6 @@
 package de.javengers.addressbook.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import de.javengers.addressbook.exception.NoSuchUserException;
@@ -52,7 +53,8 @@ class AddressBookControllerTest {
         doThrow(new NoSuchUserException("User with userId=123 is not found.")).when(userService).getUser(anyString());
         mockMvc.perform(
                 post("/api/addressbook/").contentType(MediaType.APPLICATION_JSON)
-                        .header("userId", "123"))
+                        .header("userId", "123")
+                        .content(getDummyListOfEntries()))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("{\"message\":\"User with userId=123 is not found.\"}")));
     }
@@ -60,6 +62,18 @@ class AddressBookControllerTest {
     @Test
     public void testCreateAddressBook() throws Exception {
 
+        String bookEntries = getDummyListOfEntries();
+
+        mockMvc.perform(
+                post("/api/addressbook/")
+                        .header("userId", "123")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bookEntries))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("{\"message\":\"User with userId=123 is not found.\"}")));
+    }
+
+    private String getDummyListOfEntries() throws JsonProcessingException {
         PostalAddress postalAddress1 = new PostalAddress(1L,
                 "Street",
                 "HouseNumber",
@@ -72,15 +86,7 @@ class AddressBookControllerTest {
         AddressBookEntry addressBookEntry = new AddressBookEntry();
         addressBookEntry.setPostalAddress(List.of(postalAddress1));
         List<AddressBookEntry> addressBookEntries = List.of(addressBookEntry);
-        String bookEntries = objectMapper.writeValueAsString(addressBookEntries);
-
-        mockMvc.perform(
-                post("/api/addressbook/")
-                        .header("userId", "123")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(bookEntries))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("{\"message\":\"User with userId=123 is not found.\"}")));
+        return objectMapper.writeValueAsString(addressBookEntries);
     }
 
 }
