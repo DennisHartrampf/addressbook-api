@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -36,7 +37,8 @@ class UserServiceTest {
 
     @Test
     void testGetUser_NoSuchUser() {
-        when(userRepositoryMock.findById(anyLong())).thenThrow(new NoSuchElementException());
-        assertThatThrownBy(() -> userService.getUser(12L)).isInstanceOf(NoSuchUserException.class);
+        assertThatThrownBy(() -> userService.getUser(12L))
+            .isInstanceOf(NoSuchUserException.class)
+            .hasMessage("User with userId=12 is not found");
     }
 }
