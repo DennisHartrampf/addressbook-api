@@ -27,7 +27,7 @@ public class AddressBookController {
     @PostMapping(path = "/api/addressbook", 
                  produces = MediaType.APPLICATION_JSON_VALUE, 
                  consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createAddressBookEntry(@RequestHeader String userId, @RequestBody AddressBookEntry entry) {
+    public ResponseEntity<?> createAddressBookEntry(@RequestHeader Long userId, @RequestBody AddressBookEntry entry) {
         try {
             return tryCreateAddressBookEntry(userId, entry);
         } catch (NoSuchUserException ex) {
@@ -35,14 +35,15 @@ public class AddressBookController {
         }
     }
 
-    private ResponseEntity<Void> tryCreateAddressBookEntry(String userId, AddressBookEntry entry)
+    private ResponseEntity<Void> tryCreateAddressBookEntry(Long userId, AddressBookEntry entry)
     throws NoSuchUserException {
         final User user = userService.getUser(userId);
         final Long addressBookEntryId = addressBookService.createAddressBookEntry(user, entry);
-        return ResponseEntity.created(URI.create("/api/addressbook/" + addressBookEntryId)).build();
+        return ResponseEntity.created(URI.create(String.format("/api/addressbook/%d",
+                                                               addressBookEntryId))).build();
     }
 
-    private ResponseEntity<ErrorMessage> noSuchUserResponse(String userId) {
+    private ResponseEntity<ErrorMessage> noSuchUserResponse(Long userId) {
         return ResponseEntity.status(400)
                              .body(new ErrorMessage(String.format("User with userId=%s is not found.", userId)));
     }
