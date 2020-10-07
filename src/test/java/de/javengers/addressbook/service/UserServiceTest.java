@@ -20,13 +20,13 @@ class UserServiceTest {
     private UserRepository userRepositoryMock;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         userRepositoryMock = mock(UserRepository.class);
         userService = new UserService(userRepositoryMock);
     }
 
     @Test
-    public void testGetUser() throws NoSuchUserException {
+    void testGetUser() throws NoSuchUserException {
         User expectedUser = new User();
         when(userRepositoryMock.get(anyString())).thenReturn(expectedUser);
         User user = userService.getUser("anyUserId");
@@ -34,7 +34,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void testGetUser_NoSuchUser() {
+    void testGetUser_NoSuchUser() {
         when(userRepositoryMock.get(anyString())).thenThrow(new NoSuchElementException());
         assertThatThrownBy(() -> {
             userService.getUser("some user");

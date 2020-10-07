@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AddressBookTest {
 
     @Test
-    public void testGetterSetter(){
+    void testGetterSetter(){
         AddressBook addressBook = new AddressBook();
 
         addressBook.setId(1L);
