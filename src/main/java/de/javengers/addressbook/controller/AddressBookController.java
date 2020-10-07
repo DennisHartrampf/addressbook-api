@@ -1,5 +1,6 @@
 package de.javengers.addressbook.controller;
 
+import de.javengers.addressbook.exception.MultipleAddressBooksException;
 import de.javengers.addressbook.exception.NoSuchUserException;
 import de.javengers.addressbook.model.AddressBookEntry;
 import de.javengers.addressbook.model.ErrorMessage;
@@ -26,22 +27,26 @@ public class AddressBookController {
         this.addressBookService = addressBookService;
     }
 
-    @PostMapping(path = "/api/addressbook", 
-                 produces = MediaType.APPLICATION_JSON_VALUE, 
+    @PostMapping(path = "/api/addressbook",
+                 produces = MediaType.APPLICATION_JSON_VALUE,
                  consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createAddressBookEntry(@RequestHeader Long userId, @RequestBody AddressBookEntry entry) {
         try {
             return tryCreateAddressBookEntry(userId, entry);
         } catch (NoSuchUserException ex) {
             return noSuchUserResponse(userId);
-        } catch (Exception e) {
-            //TODO: handle
+        } catch (MultipleAddressBooksException e) {
+            return multipleAddressBooksException(e);
         }
-        return ResponseEntity.status(400).build();
+    }
+
+    private ResponseEntity<?> multipleAddressBooksException(Exception ex) {
+        return ResponseEntity.status(400)
+                .body(new ErrorMessage(ex.getMessage()));
     }
 
     private ResponseEntity<Void> tryCreateAddressBookEntry(Long userId, AddressBookEntry entry)
-            throws Exception {
+            throws MultipleAddressBooksException, NoSuchUserException {
         final User user = userService.getUser(userId);
         final Long addressBookEntryId = addressBookService.createAddressBookEntry(user, entry);
         return ResponseEntity.created(URI.create(String.format("/api/addressbook/%d",

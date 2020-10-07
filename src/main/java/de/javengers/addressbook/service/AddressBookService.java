@@ -28,22 +28,27 @@ public class AddressBookService {
         this.addressBookRepository = addressBookRepository;
     }
 
-    public Long createAddressBookEntry(User user, AddressBookEntry entry) throws Exception {
+    public Long createAddressBookEntry(User user, AddressBookEntry entry) throws MultipleAddressBooksException {
         List<AddressBook> addressBooks = addressBookRepository.findByUser(user.getId());
-        AddressBook addressBook = new AddressBook();
-        if (addressBooks.isEmpty()) {
-            addressBook.setUser(user);
-            addressBook = addressBookRepository.save(addressBook);
-        } else if (addressBooks.size() > 1) {
-            throw new MultipleAddressBooksException(String.format("There are already %d AddressBooks for the user %s exist", addressBooks.size(), user.getId()));
-        } else {
-            addressBook = addressBooks.get(0);
-        }
+        AddressBook addressBook = getAddressBook(user, addressBooks);
         categoryRepository.saveAll(entry.getCategories());
         postalAddressRepository.saveAll(entry.getPostalAddress());
         entry = addressBookEntryRepository.save(entry);
         addressBook.setEntries(List.of(entry));
         addressBookRepository.save(addressBook);
         return entry.getId();
+    }
+
+    private AddressBook getAddressBook(User user, List<AddressBook> addressBooks) throws MultipleAddressBooksException {
+        AddressBook addressBook = new AddressBook();
+        if (addressBooks.isEmpty()) {
+            addressBook.setUser(user);
+            addressBook = addressBookRepository.save(addressBook);
+        } else if (addressBooks.size() > 1) {
+            throw new MultipleAddressBooksException(String.format("There are already %d AddressBooks for the user %s exist.", addressBooks.size(), user.getId()));
+        } else {
+            addressBook = addressBooks.get(0);
+        }
+        return addressBook;
     }
 }

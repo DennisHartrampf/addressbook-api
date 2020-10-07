@@ -75,7 +75,7 @@ class AddressBookServiceTest {
         assertThatThrownBy(() ->
                 service.createAddressBookEntry(user, entry))
                 .isInstanceOf(MultipleAddressBooksException.class)
-                .hasMessage("There are already 2 AddressBooks for the user 123 exist");
+                .hasMessage("There are already 2 AddressBooks for the user 123 exist.");
 
         verifyNoInteractions(categoryRepository);
         verifyNoInteractions(postalAddressRepository);

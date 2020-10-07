@@ -3,6 +3,8 @@ package de.javengers.addressbook.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import de.javengers.addressbook.db.AddressBookRepository;
+import de.javengers.addressbook.exception.MultipleAddressBooksException;
 import de.javengers.addressbook.exception.NoSuchUserException;
 import de.javengers.addressbook.model.AddressBookEntry;
 import de.javengers.addressbook.model.PostalAddress;
@@ -45,12 +47,15 @@ class AddressBookControllerIntegrationTest {
     @MockBean
     private AddressBookService addressBookService;
 
+    @MockBean
+    private AddressBookRepository addressBookRepository;
+
     @Test
     void testCreateAddressBook_MissingUserId() throws Exception {
         mockMvc.perform(post("/api/addressbook").contentType(MediaType.APPLICATION_JSON))
                .andExpect(status().isBadRequest())
                .andExpect(status().reason(containsString(
-                   "Missing request header 'userId' for method parameter of type String")));
+                   "Missing request header 'userId' for method parameter of type Long")));
     }
 
     @Test
@@ -77,6 +82,18 @@ class AddressBookControllerIntegrationTest {
                .andExpect(status().isCreated())
                .andExpect(header().string(HttpHeaders.LOCATION, "/api/addressbook/2"))
                .andExpect(content().string(emptyString()));
+    }
+
+    @Test
+    void testCreateAddressBook_MultipleAddressBooks() throws Exception {
+        doThrow(new MultipleAddressBooksException("There are already 2 AddressBooks for the user 123 exist.")).when(addressBookService)
+                .createAddressBookEntry(any(), any());
+        mockMvc.perform(post("/api/addressbook/").contentType(MediaType.APPLICATION_JSON)
+                .header("userId", "123")
+                .content(getEntryJsonString()))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString(
+                        "{\"message\":\"There are already 2 AddressBooks for the user 123 exist.\"}")));
     }
 
     private String getEntryJsonString() throws JsonProcessingException {
