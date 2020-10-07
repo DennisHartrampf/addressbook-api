@@ -4,6 +4,7 @@ import de.javengers.addressbook.db.AddressBookEntryRepository;
 import de.javengers.addressbook.db.AddressBookRepository;
 import de.javengers.addressbook.db.CategoryRepository;
 import de.javengers.addressbook.db.PostalAddressRepository;
+import de.javengers.addressbook.exception.MultipleAddressBooksException;
 import de.javengers.addressbook.model.AddressBook;
 import de.javengers.addressbook.model.AddressBookEntry;
 import de.javengers.addressbook.model.User;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 class AddressBookServiceTest {
@@ -52,6 +54,32 @@ class AddressBookServiceTest {
         verify(categoryRepository).saveAll(entry.getCategories());
         verify(postalAddressRepository).saveAll(entry.getPostalAddress());
         verify(addressBookEntryRepository).save(entry);
+
+    }
+
+    @Test
+    void testCreateAddressBook_TooManyAddressBooks() {
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
+
+        AddressBookEntry entry = new AddressBookEntry();
+        User user = new User();
+        user.setId(123L);
+        AddressBook newAddressBook = new AddressBook();
+        newAddressBook.setUser(user);
+        newAddressBook.setId(12L);
+
+        when(addressBookRepository.findByUser(user.getId())).thenReturn(List.of(new AddressBook(), new AddressBook()));
+        when(addressBookRepository.save(any())).thenReturn(newAddressBook);
+        when(addressBookEntryRepository.save(any())).thenReturn(entry);
+
+        assertThatThrownBy(() ->
+                service.createAddressBookEntry(user, entry))
+                .isInstanceOf(MultipleAddressBooksException.class)
+                .hasMessage("There are already 2 AddressBooks for the user 123 exist");
+
+        verifyNoInteractions(categoryRepository);
+        verifyNoInteractions(postalAddressRepository);
+        verifyNoInteractions(addressBookEntryRepository);
 
     }
 

@@ -4,6 +4,7 @@ import de.javengers.addressbook.db.AddressBookEntryRepository;
 import de.javengers.addressbook.db.AddressBookRepository;
 import de.javengers.addressbook.db.CategoryRepository;
 import de.javengers.addressbook.db.PostalAddressRepository;
+import de.javengers.addressbook.exception.MultipleAddressBooksException;
 import de.javengers.addressbook.model.AddressBook;
 import de.javengers.addressbook.model.AddressBookEntry;
 import de.javengers.addressbook.model.User;
@@ -34,7 +35,7 @@ public class AddressBookService {
             addressBook.setUser(user);
             addressBook = addressBookRepository.save(addressBook);
         } else if (addressBooks.size() > 1) {
-            throw new Exception("Not handled yet, but should say too many results");
+            throw new MultipleAddressBooksException(String.format("There are already %d AddressBooks for the user %s exist", addressBooks.size(), user.getId()));
         } else {
             addressBook = addressBooks.get(0);
         }
