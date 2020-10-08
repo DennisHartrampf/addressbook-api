@@ -10,6 +10,8 @@ import de.javengers.addressbook.model.AddressBookEntry;
 import de.javengers.addressbook.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -79,6 +81,28 @@ class AddressBookServiceTest {
         verifyNoInteractions(postalAddressRepository);
         verifyNoInteractions(addressBookEntryRepository);
 
+    }
+
+    @Test
+    void testDeleteAddressBookEntry(){
+        doNothing().when(addressBookEntryRepository).deleteById(anyLong());
+
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
+
+        ResponseEntity<HttpStatus> httpStatusResponseEntity = service.deleteAddressBookEntry(0L);
+
+        assertThat(httpStatusResponseEntity).isEqualTo(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    }
+
+    @Test
+    void testDeleteAddressBookEntry_failure(){
+        doThrow(new RuntimeException()).doNothing().when(addressBookEntryRepository).deleteById(anyLong());
+
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
+
+        ResponseEntity<HttpStatus> httpStatusResponseEntity = service.deleteAddressBookEntry(0L);
+
+        assertThat(httpStatusResponseEntity).isEqualTo(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
 }

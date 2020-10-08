@@ -9,6 +9,8 @@ import de.javengers.addressbook.model.AddressBook;
 import de.javengers.addressbook.model.AddressBookEntry;
 import de.javengers.addressbook.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -40,6 +42,17 @@ public class AddressBookService {
         updateAddressBookWithEntries(entry, addressBook);
         return entry.getId();
     }
+
+    @Transactional
+    public ResponseEntity<HttpStatus> deleteAddressBookEntry(Long id) {
+        try {
+            addressBookEntryRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     private void updateAddressBookWithEntries(AddressBookEntry entry, AddressBook addressBook) {
         List<AddressBookEntry> entries = new ArrayList<>();

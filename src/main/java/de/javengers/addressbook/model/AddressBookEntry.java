@@ -21,9 +21,9 @@ public class AddressBookEntry {
     private List<String> phoneNumbers;
     @ElementCollection
     private List<String> emailAddresses;
-    @OneToMany
+    @OneToMany(orphanRemoval=true, cascade=CascadeType.ALL)
     private List<PostalAddress> postalAddress = new ArrayList<>();
-    @OneToMany
+    @OneToMany(orphanRemoval=true, cascade=CascadeType.ALL)
     private List<Category> categories = new ArrayList<>();
 
     private boolean vip;
