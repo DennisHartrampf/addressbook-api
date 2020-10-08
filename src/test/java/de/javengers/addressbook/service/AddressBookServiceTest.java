@@ -51,8 +51,6 @@ class AddressBookServiceTest {
 
         assertThat(idOfNewEntry).isEqualTo(0);
         verify(addressBookRepository).findByUser(user.getId());
-        verify(categoryRepository).saveAll(entry.getCategories());
-        verify(postalAddressRepository).saveAll(entry.getPostalAddress());
         verify(addressBookEntryRepository).save(entry);
 
     }
