@@ -7,6 +7,7 @@ import de.javengers.addressbook.model.ErrorMessage;
 import de.javengers.addressbook.model.User;
 import de.javengers.addressbook.service.AddressBookService;
 import de.javengers.addressbook.service.UserService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,7 @@ public class AddressBookController {
         this.addressBookService = addressBookService;
     }
 
+    @ApiOperation(value = "Create a single address book entry (contact)")
     @PostMapping(path = "/api/addressbook",
                  produces = MediaType.APPLICATION_JSON_VALUE,
                  consumes = MediaType.APPLICATION_JSON_VALUE)

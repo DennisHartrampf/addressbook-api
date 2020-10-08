@@ -1,8 +1,12 @@
 package de.javengers.addressbook.model;
 
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
 import javax.persistence.*;
 import java.util.List;
 
+
+@EnableSwagger2
 @Entity
 public class AddressBookEntry {
     @Id
