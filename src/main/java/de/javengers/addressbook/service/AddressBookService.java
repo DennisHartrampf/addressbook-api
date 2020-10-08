@@ -15,10 +15,10 @@ import java.util.List;
 
 @Service
 public class AddressBookService {
-    private CategoryRepository categoryRepository;
-    private PostalAddressRepository postalAddressRepository;
-    private AddressBookEntryRepository addressBookEntryRepository;
-    private AddressBookRepository addressBookRepository;
+    private final CategoryRepository categoryRepository;
+    private final PostalAddressRepository postalAddressRepository;
+    private final AddressBookEntryRepository addressBookEntryRepository;
+    private final AddressBookRepository addressBookRepository;
 
     @Autowired
     public AddressBookService(CategoryRepository categoryRepository, PostalAddressRepository postalAddressRepository, AddressBookEntryRepository addressBookEntryRepository, AddressBookRepository addressBookRepository) {
