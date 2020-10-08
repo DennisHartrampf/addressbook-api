@@ -1,6 +1,7 @@
 package de.javengers.addressbook.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,9 +18,9 @@ public class AddressBookEntry {
     @ElementCollection
     private List<String> emailAddresses;
     @OneToMany
-    private List<PostalAddress> postalAddress;
+    private List<PostalAddress> postalAddress = new ArrayList<>();
     @OneToMany
-    private List<Category> categories;
+    private List<Category> categories = new ArrayList<>();
 
     private boolean vip;
     private String description;

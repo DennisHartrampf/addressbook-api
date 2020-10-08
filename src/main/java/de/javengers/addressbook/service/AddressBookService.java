@@ -11,6 +11,8 @@ import de.javengers.addressbook.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,15 +30,34 @@ public class AddressBookService {
         this.addressBookRepository = addressBookRepository;
     }
 
+    @Transactional
     public Long createAddressBookEntry(User user, AddressBookEntry entry) throws MultipleAddressBooksException {
         List<AddressBook> addressBooks = addressBookRepository.findByUser(user.getId());
         AddressBook addressBook = getAddressBook(user, addressBooks);
-        categoryRepository.saveAll(entry.getCategories());
-        postalAddressRepository.saveAll(entry.getPostalAddress());
+        saveCategoriesIfPresent(entry);
+        savePostAddressIfPresent(entry);
         entry = addressBookEntryRepository.save(entry);
-        addressBook.setEntries(List.of(entry));
-        addressBookRepository.save(addressBook);
+        updateAddressBookWithEntries(entry, addressBook);
         return entry.getId();
+    }
+
+    private void updateAddressBookWithEntries(AddressBookEntry entry, AddressBook addressBook) {
+        List<AddressBookEntry> entries = new ArrayList<>();
+        entries.add(entry);
+        addressBook.setEntries(entries);
+        addressBookRepository.save(addressBook);
+    }
+
+    private void savePostAddressIfPresent(AddressBookEntry entry) {
+        if (entry.getPostalAddress().size() > 0) {
+            postalAddressRepository.saveAll(entry.getPostalAddress());
+        }
+    }
+
+    private void saveCategoriesIfPresent(AddressBookEntry entry) {
+        if (entry.getCategories().size() > 0) {
+            categoryRepository.saveAll(entry.getCategories());
+        }
     }
 
     private AddressBook getAddressBook(User user, List<AddressBook> addressBooks) throws MultipleAddressBooksException {
