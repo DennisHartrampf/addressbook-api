@@ -1,0 +1,113 @@
+package de.javengers.addressbook.service;
+
+import de.javengers.addressbook.db.AddressBookEntryRepository;
+import de.javengers.addressbook.db.AddressBookRepository;
+import de.javengers.addressbook.db.CategoryRepository;
+import de.javengers.addressbook.db.PostalAddressRepository;
+import de.javengers.addressbook.exception.MultipleAddressBooksException;
+import de.javengers.addressbook.model.AddressBook;
+import de.javengers.addressbook.model.AddressBookEntry;
+import de.javengers.addressbook.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class AddressBookService {
+    private final CategoryRepository categoryRepository;
+    private final PostalAddressRepository postalAddressRepository;
+    private final AddressBookEntryRepository addressBookEntryRepository;
+    private final AddressBookRepository addressBookRepository;
+
+    @Autowired
+    public AddressBookService(CategoryRepository categoryRepository, PostalAddressRepository postalAddressRepository, AddressBookEntryRepository addressBookEntryRepository, AddressBookRepository addressBookRepository) {
+        this.categoryRepository = categoryRepository;
+        this.postalAddressRepository = postalAddressRepository;
+        this.addressBookEntryRepository = addressBookEntryRepository;
+        this.addressBookRepository = addressBookRepository;
+    }
+
+    @Transactional
+    public Long createAddressBookEntry(User user, AddressBookEntry entry) throws MultipleAddressBooksException {
+        List<AddressBook> addressBooks = addressBookRepository.findByUser(user.getId());
+        AddressBook addressBook = getAddressBook(user, addressBooks);
+        saveCategoriesIfPresent(entry);
+        savePostAddressIfPresent(entry);
+        entry = addressBookEntryRepository.save(entry);
+        updateAddressBookWithEntries(entry, addressBook);
+        return entry.getId();
+    }
+
+    @Transactional
+    public ResponseEntity<HttpStatus> deleteAddressBookEntry(Long id) {
+        try {
+            addressBookEntryRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<AddressBookEntry> updateAddressBookEntry(long id, AddressBookEntry entry) {
+        Optional<AddressBookEntry> addressBookEntryData = addressBookEntryRepository.findById(id);
+
+        if (addressBookEntryData.isPresent()) {
+            AddressBookEntry _entry = addressBookEntryData.get();
+
+            _entry.setSalutation(entry.getSalutation());
+            _entry.setFirstName(entry.getFirstName());
+            _entry.setLastName(entry.getLastName());
+            _entry.setCompany(entry.getCompany());
+            _entry.setVip(entry.isVip());
+            _entry.setPostalAddress(entry.getPostalAddress());
+            _entry.setPhoneNumbers(entry.getPhoneNumbers());
+            _entry.setEmailAddresses(entry.getEmailAddresses());
+            _entry.setCategories(entry.getCategories());
+            _entry.setDescription(entry.getDescription());
+            _entry.setPhoto(entry.getPhoto());
+
+            return new ResponseEntity<>(addressBookEntryRepository.save(_entry), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    private void updateAddressBookWithEntries(AddressBookEntry entry, AddressBook addressBook) {
+        List<AddressBookEntry> entries = new ArrayList<>();
+        entries.add(entry);
+        addressBook.setEntries(entries);
+        addressBookRepository.save(addressBook);
+    }
+
+    private void savePostAddressIfPresent(AddressBookEntry entry) {
+        if (entry.getPostalAddress().size() > 0) {
+            postalAddressRepository.saveAll(entry.getPostalAddress());
+        }
+    }
+
+    private void saveCategoriesIfPresent(AddressBookEntry entry) {
+        if (entry.getCategories().size() > 0) {
+            categoryRepository.saveAll(entry.getCategories());
+        }
+    }
+
+    private AddressBook getAddressBook(User user, List<AddressBook> addressBooks) throws MultipleAddressBooksException {
+        AddressBook addressBook = new AddressBook();
+        if (addressBooks.isEmpty()) {
+            addressBook.setUser(user);
+            addressBook = addressBookRepository.save(addressBook);
+        } else if (addressBooks.size() > 1) {
+            throw new MultipleAddressBooksException(String.format("There are already %d AddressBooks for the user %s exist.", addressBooks.size(), user.getId()));
+        } else {
+            addressBook = addressBooks.get(0);
+        }
+        return addressBook;
+    }
+}

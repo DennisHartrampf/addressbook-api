@@ -1,0 +1,133 @@
+package de.javengers.addressbook.service;
+
+import de.javengers.addressbook.db.AddressBookEntryRepository;
+import de.javengers.addressbook.db.AddressBookRepository;
+import de.javengers.addressbook.db.CategoryRepository;
+import de.javengers.addressbook.db.PostalAddressRepository;
+import de.javengers.addressbook.exception.MultipleAddressBooksException;
+import de.javengers.addressbook.model.AddressBook;
+import de.javengers.addressbook.model.AddressBookEntry;
+import de.javengers.addressbook.model.User;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
+
+class AddressBookServiceTest {
+
+    private CategoryRepository categoryRepository;
+    private PostalAddressRepository postalAddressRepository;
+    private AddressBookEntryRepository addressBookEntryRepository;
+    private AddressBookRepository addressBookRepository;
+
+    @BeforeEach
+    void setUp() {
+        categoryRepository = mock(CategoryRepository.class);
+        postalAddressRepository = mock(PostalAddressRepository.class);
+        addressBookEntryRepository = mock(AddressBookEntryRepository.class);
+        addressBookRepository = mock(AddressBookRepository.class);
+    }
+
+    @Test
+    void testCreateAddressBook() throws Exception {
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
+
+        AddressBookEntry entry = new AddressBookEntry();
+        User user = new User();
+        user.setId(123L);
+        AddressBook newAddressBook = new AddressBook();
+        newAddressBook.setUser(user);
+        newAddressBook.setId(12L);
+
+        when(addressBookRepository.findByUser(user.getId())).thenReturn(List.of());
+        when(addressBookRepository.save(any())).thenReturn(newAddressBook);
+        when(addressBookEntryRepository.save(any())).thenReturn(entry);
+
+        long idOfNewEntry = service.createAddressBookEntry(user, entry);
+
+        assertThat(idOfNewEntry).isEqualTo(0);
+        verify(addressBookRepository).findByUser(user.getId());
+        verify(addressBookEntryRepository).save(entry);
+    }
+
+    @Test
+    void testCreateAddressBook_TooManyAddressBooks() {
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
+
+        AddressBookEntry entry = new AddressBookEntry();
+        User user = new User();
+        user.setId(123L);
+        AddressBook newAddressBook = new AddressBook();
+        newAddressBook.setUser(user);
+        newAddressBook.setId(12L);
+
+        when(addressBookRepository.findByUser(user.getId())).thenReturn(List.of(new AddressBook(), new AddressBook()));
+        when(addressBookRepository.save(any())).thenReturn(newAddressBook);
+        when(addressBookEntryRepository.save(any())).thenReturn(entry);
+
+        assertThatThrownBy(() ->
+                service.createAddressBookEntry(user, entry))
+                .isInstanceOf(MultipleAddressBooksException.class)
+                .hasMessage("There are already 2 AddressBooks for the user 123 exist.");
+
+        verifyNoInteractions(categoryRepository);
+        verifyNoInteractions(postalAddressRepository);
+        verifyNoInteractions(addressBookEntryRepository);
+    }
+
+    @Test
+    void testDeleteAddressBookEntry(){
+        doNothing().when(addressBookEntryRepository).deleteById(anyLong());
+
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
+
+        ResponseEntity<HttpStatus> httpStatusResponseEntity = service.deleteAddressBookEntry(0L);
+
+        assertThat(httpStatusResponseEntity).isEqualTo(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    }
+
+    @Test
+    void testDeleteAddressBookEntry_failure(){
+        doThrow(new RuntimeException()).doNothing().when(addressBookEntryRepository).deleteById(anyLong());
+
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
+
+        ResponseEntity<HttpStatus> httpStatusResponseEntity = service.deleteAddressBookEntry(0L);
+
+        assertThat(httpStatusResponseEntity).isEqualTo(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
+    @Test
+    void testUpdateAddressBookEntry(){
+        AddressBookEntry entry = new AddressBookEntry();
+        AddressBookEntry _entry = new AddressBookEntry();
+        when(addressBookEntryRepository.findById(0L)).thenReturn(Optional.of(_entry));
+        when(addressBookEntryRepository.save(any())).thenReturn(_entry);
+
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
+
+        ResponseEntity<AddressBookEntry> addressBookEntryResponseEntity = service.updateAddressBookEntry(0L, entry);
+
+        assertThat(addressBookEntryResponseEntity).isEqualTo(new ResponseEntity<>(_entry, HttpStatus.OK));
+    }
+
+    @Test
+    void testUpdateAddressBookEntry_failure(){
+        AddressBookEntry entry = new AddressBookEntry();
+        when(addressBookEntryRepository.findById(0L)).thenReturn(Optional.empty());
+
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
+
+        ResponseEntity<AddressBookEntry> addressBookEntryResponseEntity = service.updateAddressBookEntry(0L, entry);
+
+        assertThat(addressBookEntryResponseEntity).isEqualTo(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+}
