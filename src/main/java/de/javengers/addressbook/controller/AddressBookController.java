@@ -40,9 +40,16 @@ public class AddressBookController {
         }
     }
 
+    @ApiOperation(value = "Delete a single address book entry (contact) by ID")
     @DeleteMapping("/api/addressbookentry/{id}")
     public ResponseEntity<HttpStatus> deletAddressBookEntry(@PathVariable("id") long id) {
         return addressBookService.deleteAddressBookEntry(id);
+    }
+
+    @ApiOperation(value = "Update a single address book entry (contact) by ID")
+    @PutMapping("/api/addressbookentry/{id}")
+    public ResponseEntity<AddressBookEntry> updateAddressBookEntry(@PathVariable("id") long id, @RequestBody AddressBookEntry entry) {
+        return addressBookService.updateAddressBookEntry(id, entry);
     }
 
     private ResponseEntity<?> multipleAddressBooksException(Exception ex) {

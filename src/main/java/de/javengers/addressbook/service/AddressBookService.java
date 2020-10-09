@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AddressBookService {
@@ -53,6 +54,30 @@ public class AddressBookService {
         }
     }
 
+    @Transactional
+    public ResponseEntity<AddressBookEntry> updateAddressBookEntry(long id, AddressBookEntry entry) {
+        Optional<AddressBookEntry> addressBookEntryData = addressBookEntryRepository.findById(id);
+
+        if (addressBookEntryData.isPresent()) {
+            AddressBookEntry _entry = addressBookEntryData.get();
+
+            _entry.setSalutation(entry.getSalutation());
+            _entry.setFirstName(entry.getFirstName());
+            _entry.setLastName(entry.getLastName());
+            _entry.setCompany(entry.getCompany());
+            _entry.setVip(entry.isVip());
+            _entry.setPostalAddress(entry.getPostalAddress());
+            _entry.setPhoneNumbers(entry.getPhoneNumbers());
+            _entry.setEmailAddresses(entry.getEmailAddresses());
+            _entry.setCategories(entry.getCategories());
+            _entry.setDescription(entry.getDescription());
+            _entry.setPhoto(entry.getPhoto());
+
+            return new ResponseEntity<>(addressBookEntryRepository.save(_entry), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
     private void updateAddressBookWithEntries(AddressBookEntry entry, AddressBook addressBook) {
         List<AddressBookEntry> entries = new ArrayList<>();

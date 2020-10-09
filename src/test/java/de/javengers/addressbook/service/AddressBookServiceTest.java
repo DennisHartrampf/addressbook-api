@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -54,7 +55,6 @@ class AddressBookServiceTest {
         assertThat(idOfNewEntry).isEqualTo(0);
         verify(addressBookRepository).findByUser(user.getId());
         verify(addressBookEntryRepository).save(entry);
-
     }
 
     @Test
@@ -80,7 +80,6 @@ class AddressBookServiceTest {
         verifyNoInteractions(categoryRepository);
         verifyNoInteractions(postalAddressRepository);
         verifyNoInteractions(addressBookEntryRepository);
-
     }
 
     @Test
@@ -103,6 +102,32 @@ class AddressBookServiceTest {
         ResponseEntity<HttpStatus> httpStatusResponseEntity = service.deleteAddressBookEntry(0L);
 
         assertThat(httpStatusResponseEntity).isEqualTo(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
+    @Test
+    void testUpdateAddressBookEntry(){
+        AddressBookEntry entry = new AddressBookEntry();
+        AddressBookEntry _entry = new AddressBookEntry();
+        when(addressBookEntryRepository.findById(0L)).thenReturn(Optional.of(_entry));
+        when(addressBookEntryRepository.save(any())).thenReturn(_entry);
+
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
+
+        ResponseEntity<AddressBookEntry> addressBookEntryResponseEntity = service.updateAddressBookEntry(0L, entry);
+
+        assertThat(addressBookEntryResponseEntity).isEqualTo(new ResponseEntity<>(_entry, HttpStatus.OK));
+    }
+
+    @Test
+    void testUpdateAddressBookEntry_failure(){
+        AddressBookEntry entry = new AddressBookEntry();
+        when(addressBookEntryRepository.findById(0L)).thenReturn(Optional.empty());
+
+        AddressBookService service = new AddressBookService(categoryRepository, postalAddressRepository, addressBookEntryRepository, addressBookRepository);
+
+        ResponseEntity<AddressBookEntry> addressBookEntryResponseEntity = service.updateAddressBookEntry(0L, entry);
+
+        assertThat(addressBookEntryResponseEntity).isEqualTo(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
 }
